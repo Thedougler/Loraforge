@@ -1,5 +1,4 @@
-Of course. Here is the revised README.md file, updated to explicitly include the Project Vision, Tech Stack, and Development Philosophy sections as we discussed. This version is tailored to be highly informative for both human contributors and an LLM assistant.
-LoRA-Forge
+# LoRA-Forge
 A self-hosted, mobile-friendly manager for creating optimized character LoRA training datasets.
 Project Vision
 The process of creating high-quality datasets for LoRA training is often a tedious, manual, and disorganized task. AI artists and developers spend countless hours sorting, cropping, filtering, and captioning thousands of files instead of focusing on creative work.
