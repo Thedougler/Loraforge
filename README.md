@@ -1,9 +1,8 @@
 # LoRA-Forge
 A self-hosted, mobile-friendly manager for creating optimized character LoRA training datasets.
-Project Vision
+## Project Vision
 The process of creating high-quality datasets for LoRA training is often a tedious, manual, and disorganized task. AI artists and developers spend countless hours sorting, cropping, filtering, and captioning thousands of files instead of focusing on creative work.
 LoRA-Forge aims to solve this problem by providing an intelligent, automated, and self-hosted platform to transform a chaotic collection of media into a perfectly optimized and balanced dataset. It is designed to be the central workbench for any artist using OneTrainer or Kohya_ss, streamlining the entire data preparation pipeline from raw files to a final, train-ready archive. Our goal is to make dataset creation fast, repeatable, and accessible to everyone.
-
 ## Key Features
 The core of LoRA-Forge is a set of powerful batch operations accessible from a modern, responsive web UI.
  * 📦 Effortless Ingestion: Upload an archive (.zip, .rar) and have it automatically unpacked into a new, editable dataset.
@@ -18,12 +17,13 @@ The core of LoRA-Forge is a set of powerful batch operations accessible from a m
  * ✍️ Batch Captioning: Use a remote LLM to automatically generate high-quality captions for your final dataset in either SDXL or FLUX prompt styles.
  * 📚 Pack & Ship: Generate a final, downloadable .zip archive containing your balanced dataset and all corresponding .txt caption files, ready for training.
 ## Tech Stack
-This project is built with a modern, containerized architecture for simple deployment and robust performance.
+This project is built with a modern, containerized architecture designed for responsiveness and robust background processing.
  * Deployment: 🐳 Docker / Docker Compose
  * Backend: 🐍 Python with FastAPI for a high-performance API.
  * Frontend: ✨ React with Vite for a fast, responsive, and modern user interface.
- * Database: 🐘 PostgreSQL for storing all image metadata and dataset information.
- * Libraries: Key Python libraries for image processing will include Pillow, OpenCV, and scikit-image.
+ * Database: 🐘 PostgreSQL for persistent, structured metadata storage.
+ * Task Queue & Cache: ⚡ Redis to manage background job queues and provide high-speed caching, ensuring the UI is always fast and responsive.
+ * Worker: 👷 Celery for executing long-running background tasks like image processing and analysis.
 ## Development Philosophy
 To ensure clarity, consistency, and effective collaboration (especially with AI assistants), this project adheres to a strict development philosophy. All contributions must follow these principles.
  * Granularity & Single Responsibility: Every pull request must address one single, specific GitHub Issue. Work should be broken down into the smallest logical and verifiable steps.
@@ -36,7 +36,7 @@ To ensure clarity, consistency, and effective collaboration (especially with AI 
 cd lora-forge
 
  * Launch with Docker Compose:
-   docker compose up -d
+   docker-compose up -d
 
  * Access the WebUI:
    Open your browser and navigate to http://localhost:8000.
