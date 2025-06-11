@@ -1,5 +1,5 @@
 # LoRA-Forge Architecture
-1. Architectural Overview
+## 1. Architectural Overview
 LoRA-Forge is designed as a high-performance, containerized web application. The architecture separates concerns into five primary services, orchestrated by Docker Compose, to ensure a responsive user experience and scalable backend processing.
  * Frontend: A modern, single-page application (SPA) that runs in the user's browser.
  * Backend: A stateless API server that handles business logic and orchestrates all backend operations.
