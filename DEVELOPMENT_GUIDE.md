@@ -11,10 +11,10 @@ Before you begin, ensure you have the following software installed and running o
 These steps will get a running instance of the application on your local machine.
  * Clone the Repository:
    Open your terminal and clone the project from GitHub.
-   git clone https://github.com/your-username/lora-forge.git
+   git clone https://github.com/Thedougler/Loraforge.git
 
  * Navigate to the Project Directory:
-   cd loraforge
+   cd Loraforge
 
  * Build and Start the Services:
    Use Docker Compose to build the images for the frontend, backend, and worker, and start all services in detached mode (-d).
