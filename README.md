@@ -26,14 +26,14 @@ This project is built with a modern, containerized architecture designed for res
  * Worker: 👷 Celery for executing long-running background tasks like image processing and analysis.
 ## Development Philosophy
 To ensure clarity, consistency, and effective collaboration (especially with AI assistants), this project adheres to a strict development philosophy. All contributions must follow these principles.
- * Granularity & Single Responsibility: Every pull request must address one single, specific GitHub Issue. Work should be broken down into the smallest logical and verifiable steps.
- * Explicitness Over Ambiguity: All work must be guided by a detailed Technical Plan and Acceptance Criteria outlined in the corresponding issue. No new features or changes should be implemented that are not explicitly requested in the issue.
- * Test-Driven Development (TDD): Where applicable, new features must be accompanied by tests that verify the Acceptance Criteria. A failing test should be written first, followed by the implementation code to make it pass.
- * Adherence to Standards: All code must be formatted and linted according to the project's standards (black for Python, prettier for the frontend) before being committed. Commit messages should follow the Conventional Commits specification.
+ * **Granularity & Single Responsibility:** Every pull request must address one single, specific GitHub Issue. Work should be broken down into the smallest logical and verifiable steps.
+ * **Explicitness Over Ambiguity:** All work must be guided by a detailed Technical Plan and Acceptance Criteria outlined in the corresponding issue. No new features or changes should be implemented that are not explicitly requested in the issue.
+ * **Test-Driven Development (TDD):** Where applicable, new features must be accompanied by tests that verify the Acceptance Criteria. A failing test should be written first, followed by the implementation code to make it pass.
+ * **Adherence to Standards:** All code must be formatted and linted according to the project's standards (black for Python, prettier for the frontend) before being committed. Commit messages should follow the Conventional Commits specification.
 ## Getting Started
  * Clone the repository:
-   git clone https://github.com/your-username/lora-forge.git
-cd lora-forge
+   git clone https://github.com/Thedougler/Loraforge.git
+cd Loraforge
 
  * Launch with Docker Compose:
    docker compose up -d
