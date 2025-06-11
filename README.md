@@ -1,10 +1,10 @@
-# LoRA-Forge
+# LoRAForge
 A self-hosted, mobile-friendly manager for creating optimized character LoRA training datasets.
 ## Project Vision
 The process of creating high-quality datasets for LoRA training is often a tedious, manual, and disorganized task. AI artists and developers spend countless hours sorting, cropping, filtering, and captioning thousands of files instead of focusing on creative work.
-LoRA-Forge aims to solve this problem by providing an intelligent, automated, and self-hosted platform to transform a chaotic collection of media into a perfectly optimized and balanced dataset. It is designed to be the central workbench for any artist using OneTrainer or Kohya_ss, streamlining the entire data preparation pipeline from raw files to a final, train-ready archive. Our goal is to make dataset creation fast, repeatable, and accessible to everyone.
+LoRAForge aims to solve this problem by providing an intelligent, automated, and self-hosted platform to transform a chaotic collection of media into a perfectly optimized and balanced dataset. It is designed to be the central workbench for any artist using OneTrainer or Kohya_ss, streamlining the entire data preparation pipeline from raw files to a final, train-ready archive. Our goal is to make dataset creation fast, repeatable, and accessible to everyone.
 ## Key Features
-The core of LoRA-Forge is a set of powerful batch operations accessible from a modern, responsive web UI.
+The core of LoRAForge is a set of powerful batch operations accessible from a modern, responsive web UI.
  * 📦 Effortless Ingestion: Upload an archive (.zip, .rar) and have it automatically unpacked into a new, editable dataset.
  * 🖼️ Batch Formatting: Convert entire datasets to a specific file format (e.g., JPG, PNG, WEBP) with one click.
  * 🎬 Video Processing: Automatically extract keyframes from videos, intelligently remove near-duplicate frames, and discard the original video files.
@@ -36,7 +36,7 @@ To ensure clarity, consistency, and effective collaboration (especially with AI 
 cd lora-forge
 
  * Launch with Docker Compose:
-   docker-compose up -d
+   docker compose up -d
 
  * Access the WebUI:
    Open your browser and navigate to http://localhost:8000.
