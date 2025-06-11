@@ -13,6 +13,7 @@ LoRA-Forge is designed as a high-performance, containerized web application. The
  * Separation of Data and Metadata: Physical image/video files are stored on the file system. The database stores structured metadata about those files, while Redis holds temporary state and cached data.
 ## 3. System Components Diagram
 This diagram illustrates the flow of information between the components, highlighting the central role of Redis.
+``` mermaid 
 graph TD
     subgraph User's Machine
         Browser[🌐 Browser <br> Frontend SPA - React]
@@ -34,7 +35,7 @@ graph TD
     C -- Read/Write Files --> D
     C -- Read/Write Metadata --> B
     A -- Serves File URLs --> Browser
-
+```
 ## 4. Component Breakdown
 ### 4.1. Frontend (React / Vite)
  * Purpose: Provides the entire user experience. It is responsible for rendering the photo grid, upload forms, and statistics, as well as communicating with the backend API.
@@ -84,6 +85,7 @@ graph TD
  * Frontend: The next poll to the status endpoint returns COMPLETED, and the UI updates to show the task is done, refreshing the view to display the new captions.
 ## 6. On-Disk File System Layout
 All media and temporary files are stored in a Docker volume mounted at /data to ensure data persistence across container restarts.
+``` plaintext
 /data/
 ├── datasets/
 │   ├── {dataset_id_1}/
@@ -96,3 +98,4 @@ All media and temporary files are stored in a Docker volume mounted at /data to 
 │   └── {dataset_id_2}/
 └── uploads/
     └── temp_archive.zip
+```
