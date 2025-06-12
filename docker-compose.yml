@@ -17,6 +17,7 @@ services:
     depends_on:
       - db
       - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     volumes:
       - loraforge_data:/data
     deploy:
@@ -44,7 +45,7 @@ services:
   worker:
     build:
       context: ./backend
-    command: python3 -m celery -A celery worker --loglevel=info
+    command: celery -A app.celery worker --loglevel=info
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0

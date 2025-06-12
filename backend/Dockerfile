@@ -11,10 +11,12 @@ RUN apt-get update \
         python3.10 \
         python3-pip \
         build-essential \
+        libmagic-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a working directory inside the container
 WORKDIR /app
+ENV PYTHONPATH=/app
 
 # Copy backend requirements and install them
 # We'll create a requirements.txt with FastAPI and uvicorn

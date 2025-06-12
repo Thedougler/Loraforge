@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { increment, decrement, incrementByAmount } from './features/counter/counterSlice';
 import { Box, Button, Typography, Container } from '@mui/material';
+import DatasetUpload from './components/DatasetUpload';
 import { motion } from 'framer-motion';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             Increment by 5
           </Button>
         </Box>
+        <DatasetUpload />
       </Box>
     </Container>
   );
