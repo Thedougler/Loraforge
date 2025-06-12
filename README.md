@@ -20,7 +20,7 @@ The core of LoRAForge is a set of powerful batch operations accessible from a mo
 This project is built with a modern, containerized architecture designed for responsiveness and robust background processing.
  * Deployment: 🐳 Docker / Docker Compose
  * Backend: 🐍 Python with FastAPI for a high-performance API.
- * Frontend: ✨ React with Vite for a fast, responsive, and modern user interface.
+ * Frontend: ✨ React with Vite for a fast, responsive, and modern user interface. Utilizes Redux for state management, M-UI for material design UI components, and Framer-Motion
  * Database: 🐘 PostgreSQL for persistent, structured metadata storage.
  * Task Queue & Cache: ⚡ Redis to manage background job queues and provide high-speed caching, ensuring the UI is always fast and responsive.
  * Worker: 👷 Celery for executing long-running background tasks like image processing and analysis.
