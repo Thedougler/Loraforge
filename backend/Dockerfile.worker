@@ -18,14 +18,12 @@ RUN apt-get update \
 WORKDIR /app
 ENV PYTHONPATH=/app
 
-# Copy ai-worker requirements and install them
+# Copy requirements and install them
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the ai-worker source code
+# Copy the rest of the source code
 COPY . .
 
-# Expose the port Celery will run on (optional, but good practice if it has a flower instance or other exposed ports)
-# EXPOSE 8000 # No need to expose port for worker usually
-
 # Command to run the Celery worker
+CMD ["celery", "-A", "app.worker", "worker", "--loglevel=info"]

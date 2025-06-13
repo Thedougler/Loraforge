@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.js'],
+    globals: true, // Make Vitest APIs global
   },
   server: {
     host: true,
