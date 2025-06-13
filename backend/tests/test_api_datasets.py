@@ -15,19 +15,18 @@ def wait_for_app():
     # Wait for the app to start and create tables
     time.sleep(5)
 
-def create_dummy_zip(files_to_add={"dummy.txt": b"some content"}):
-    """Creates an in-memory zip file with dummy content."""
+def create_dummy_zip(files_to_add):
     zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as z:
         for filename, content in files_to_add.items():
-            zip_file.writestr(filename, content)
+            z.writestr(filename, content)
     zip_buffer.seek(0)
     return zip_buffer.getvalue()
 
 def test_upload_dataset_and_verify_response():
-    test_file_content = create_dummy_zip()
     test_file_name = "test_dataset.zip"
     dataset_name = "My Test Dataset"
+    test_file_content = create_dummy_zip({"file1.txt": b"hello world"})
 
     response = client.post(
         "/v1/datasets/",
@@ -43,9 +42,9 @@ def test_upload_dataset_and_verify_response():
     assert isinstance(task_response.updated_at, datetime)
 
 def test_upload_dataset_async():
-    test_file_content = create_dummy_zip()
     test_file_name = "async_test_dataset.zip"
     dataset_name = "My Async Test Dataset"
+    test_file_content = create_dummy_zip({"async_file.txt": b"async data"})
 
     response = client.post(
         "/v1/datasets/",
@@ -82,9 +81,9 @@ def test_upload_dataset_async():
 def test_get_all_datasets_after_async_upload():
     # Helper to upload dataset and wait for completion
     def upload_and_wait(dataset_name_prefix, file_suffix):
-        test_file_content = create_dummy_zip()
         test_file_name = f"{dataset_name_prefix}_{file_suffix}.zip"
         dataset_name = f"{dataset_name_prefix} Dataset"
+        test_file_content = create_dummy_zip({f"file_{file_suffix}.txt": b"some data"})
 
         response = client.post(
             "/v1/datasets/",

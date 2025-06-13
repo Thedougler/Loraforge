@@ -163,7 +163,7 @@ def process_dataset_upload(task_id: str, temp_file_path: str, original_filename:
                         new_file_record = Image( # Rename Image model to Asset or similar in future
                             dataset_id=dataset_id,
                             filename=f,
-                            path=relative_path,
+                            path=os.path.basename(full_path),  # Store only the filename
                             width=width,
                             height=height,
                             mime_type=mime_type # Store the detected MIME type

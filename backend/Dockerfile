@@ -19,12 +19,14 @@ ENV PYTHONPATH=/app
 
 # Copy backend requirements and install them
 # We'll create a requirements.txt with FastAPI and uvicorn
-COPY requirements.txt .
+COPY backend/requirements.txt .
+# Copy example data
+COPY example_data /app/example_data
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the backend source code
 # Assuming the FastAPI application code will be in this directory
-COPY . .
+COPY backend/ /app
 
 # Expose the port FastAPI will run on
 EXPOSE 8000

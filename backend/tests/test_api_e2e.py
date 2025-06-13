@@ -67,7 +67,7 @@ def cleanup_uploads_fixture():
 @pytest.fixture(name="test_zip_file_path")
 def test_zip_file_path_fixture():
     """Provides the path to the test zip file and skips the test if not found."""
-    _path = "/app/tests/test_images.zip" # Corrected path
+    _path = "/app/example_data/example_upload.zip" # Updated path to example_upload.zip
     if not os.path.exists(_path):
         pytest.skip(f"Test archive not found at {_path}. Ensure it's in the backend/tests/ directory on the host.")
     return _path

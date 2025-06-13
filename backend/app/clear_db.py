@@ -16,7 +16,7 @@ def clear_database_tables():
     try:
         # Tables to drop. Order matters if not using CASCADE.
         # Dropping 'datasets' with CASCADE will also drop 'images'.
-        tables_to_drop = ["datasets", "background_tasks"]
+        tables_to_drop = ["datasets"]
 
         for table_name in tables_to_drop:
             print(f"Dropping table: {table_name}...")

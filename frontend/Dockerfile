@@ -14,6 +14,8 @@ FROM nginx:alpine
 
 # Copy the built React app from the build stage
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
+# Copy example_data to the Nginx HTML directory
+COPY ../example_data /usr/share/nginx/html/example_data
 
 # Copy custom Nginx configuration (if any, otherwise use default)
 # COPY nginx.conf /etc/nginx/conf.d/default.conf

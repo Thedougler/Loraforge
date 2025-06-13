@@ -12,10 +12,10 @@ const mockDatasets = [
 ];
 
 const server = setupServer(
-  http.get('/api/datasets', () => {
+  http.get('/api/v1/datasets', () => {
     return HttpResponse.json(mockDatasets);
   }),
-  http.get('/api/datasets/:id/images', ({ params }) => {
+  http.get('/api/v1/datasets/:id/images', ({ params }) => {
     // Mock an empty array or specific image data depending on what's needed for the test
     return HttpResponse.json([]);
   })

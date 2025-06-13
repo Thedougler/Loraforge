@@ -19,11 +19,13 @@ WORKDIR /app
 ENV PYTHONPATH=/app
 
 # Copy requirements and install them
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the source code
-COPY . .
+COPY backend/ /app
+# Copy example data
+COPY example_data /app/example_data
 
 # Command to run the Celery worker
 CMD ["celery", "-A", "app.worker", "worker", "--loglevel=info"]

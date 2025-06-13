@@ -24,8 +24,8 @@ const renderWithRedux = (component, { initialState } = {}) => {
 describe('PhotoGrid', () => {
   it('renders PhotoThumbnail components based on the photos state', () => {
     const mockPhotos = [
-      { id: '1', url: '/image1.jpg', filename: 'image1.jpg' },
-      { id: '2', url: '/image2.jpg', filename: 'image2.jpg' },
+      { id: '1', url: '/media/image1.jpg', filename: 'image1.jpg' },
+      { id: '2', url: '/media/image2.jpg', filename: 'image2.jpg' },
     ];
 
     renderWithRedux(<PhotoGrid />, {
