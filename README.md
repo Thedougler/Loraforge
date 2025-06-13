@@ -18,12 +18,22 @@ The core of LoRAForge is a set of powerful batch operations accessible from a mo
  * 📚 Pack & Ship: Generate a final, downloadable .zip archive containing your balanced dataset and all corresponding .txt caption files, ready for training.
 ## Tech Stack
 This project is built with a modern, containerized architecture designed for responsiveness and robust background processing.
- * Deployment: 🐳 Docker / Docker Compose
- * Backend: 🐍 Python with FastAPI for a high-performance API.
- * Frontend: ✨ React with Vite for a fast, responsive, and modern user interface. Utilizes Redux for state management, M-UI for material design UI components, and Framer-Motion
- * Database: 🐘 PostgreSQL for persistent, structured metadata storage.
- * Task Queue & Cache: ⚡ Redis to manage background job queues and provide high-speed caching, ensuring the UI is always fast and responsive.
- * Worker: 👷 Celery for executing long-running background tasks like image processing and analysis.
+
+- **Deployment:** 🐳 Docker / Docker Compose for containerization and orchestration.
+
+- **Backend:** A service-oriented architecture written in Python.
+  - **API Server:** Built with [FastAPI](https://fastapi.tiangolo.com/) and run with [Uvicorn](https://www.uvicorn.org/) for a stateless RESTful API.
+  - **Background Worker:** [Celery](https://docs.celeryq.dev/en/stable/) worker for long-running, computationally intensive tasks, utilizing an `nvidia/cuda` base image for GPU leverage.
+  - **Database:** [PostgreSQL](https://www.postgresql.org/) for persistent data storage, with [SQLAlchemy](https://www.sqlalchemy.org/) as the ORM.
+  - **Message Broker & Cache:** [Redis](https://redis.io/) serves as the message broker for Celery and as a high-speed cache.
+  - **Key Dependencies:** `fastapi`, `celery`, `redis`, `sqlalchemy`, `psycopg2-binary`, `pillow`.
+
+- **Frontend:** A modern, single-page application (SPA) designed for Docker deployment.
+  - **Framework:** [React.js](https://react.dev/) application built using the [Vite](https://vitejs.dev/) toolchain.
+  - **UI & State Management:** User interface built with [MUI (Material-UI)](https://mui.com/material-ui/react-components/) and global state managed by [Redux Toolkit](https://redux-toolkit.js.org/).
+  - **API Interaction:** Communicates with the backend via a `/api` endpoint, proxied by Vite development server to `http://backend:8000`.
+  - **Deployment:** Multi-stage Docker build, serving an optimized static React app using [Nginx](https://www.nginx.com/).
+  - **Features:** Provides the user interface for interacting with Loraforge services, including data upload (using `react-dropzone`).
 ## Development Philosophy
 To ensure clarity, consistency, and effective collaboration (especially with AI assistants), this project adheres to a strict development philosophy. All contributions must follow these principles.
  * **Granularity & Single Responsibility:** Every pull request must address one single, specific GitHub Issue. Work should be broken down into the smallest logical and verifiable steps.

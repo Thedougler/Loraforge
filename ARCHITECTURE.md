@@ -13,53 +13,98 @@ LoRA-Forge is designed as a high-performance, containerized web application. The
  * Separation of Data and Metadata: Physical image/video files are stored on the file system. The database stores structured metadata about those files, while Redis holds temporary state and cached data.
 ## 3. System Components Diagram
 This diagram illustrates the flow of information between the components, highlighting the central role of Redis.
-``` mermaid 
+```mermaid
 graph TD
+    %% User's Machine Subgraph
     subgraph User's Machine
-        Browser[🌐 Browser <br> Frontend SPA - React]
+        Browser[🌐 Browser <br> Frontend SPA (React.js + Vite)]
     end
 
+    %% Server / Docker Environment Subgraph
     subgraph Server / Docker Environment
-        A[▶️ Backend API <br> Python / FastAPI]
-        B[🐘 Database <br> PostgreSQL]
-        C[👷‍♂️ Worker <br> Celery]
-        D[🗃️ File System <br> /data]
-        E[⚡ Task Queue & Cache <br> Redis]
+        API[▶️ Backend API Server <br> Python (FastAPI + Uvicorn)]
+        Worker[👷‍♂️ Background Worker <br> Celery (GPU-enabled)]
+        DB[🐘 Database <br> PostgreSQL (SQLAlchemy ORM)]
+        MessageBrokerCache[⚡ Message Broker & Cache <br> Redis]
+        FileSystem[🗃️ Persistent File System <br> /data Volume]
     end
 
-    Browser -- HTTPS API Calls --> A
-    A -- Read/Write Metadata --> B
-    A -- Enqueues Jobs --> E
-    A -- Read/Write Cache --> E
-    C -- Dequeues Jobs --> E
-    C -- Read/Write Files --> D
-    C -- Read/Write Metadata --> B
-    A -- Serves File URLs --> Browser
+    %% Interactions
+    Browser -- HTTPS API Calls --> API
+    API -- Reads/Writes Metadata --> DB
+    API -- Enqueues Jobs --> MessageBrokerCache
+    MessageBrokerCache -- Dequeues Jobs --> Worker
+    Worker -- Reads/Writes Files --> FileSystem
+    Worker -- Updates Metadata --> DB
+    API -- Reads/Writes Cache --> MessageBrokerCache
+    Worker -- Accesses GPU for tasks --> Worker
+    API -- Serves File URLs --> Browser
+
+    %% Flow of data/control
+    API -.->|Validated Input| DB
+    Worker -.->|Processing Results| DB
+    MessageBrokerCache -.->|Cached Data| API
+    MessageBrokerCache -.->|Task Payloads| Worker
 ```
 ## 4. Component Breakdown
-### 4.1. Frontend (React / Vite)
- * Purpose: Provides the entire user experience. It is responsible for rendering the photo grid, upload forms, and statistics, as well as communicating with the backend API.
- * Key Responsibilities:
-   * Making API calls to the Backend.
-   * Displaying real-time progress of background tasks by polling status endpoints or via WebSockets.
-   * Managing client-side state.
-### 4.2. Backend (Python / FastAPI)
- * Purpose: The brain of the application. It exposes a RESTful API, validates user input, manages the cache, interacts with the database, and delegates long-running tasks to the worker via Redis.
- * Key Responsibilities:
-   * Job Production: When a batch operation is requested, it creates a job message and pushes it onto the Redis task queue.
-   * Cache Management: Before running an expensive DB query (e.g., for dataset stats), it checks Redis for a cached result. If not found, it runs the query and stores the result in Redis for future requests.
-   * API Endpoints: Exposes endpoints like POST /datasets/upload, GET /datasets/{id}/images, POST /images/batch-process, and GET /tasks/{task_id}/status.
-### 4.3. Task Queue & Cache (Redis)
- * Purpose: Serves as the high-speed central hub for asynchronous communication and data caching.
- * Key Responsibilities:
-   * As a Task Queue (Message Broker): Manages a list (or queue) of jobs to be processed. It decouples the Backend API from the Worker, ensuring the API can accept new requests without waiting for previous ones to finish.
-   * As a Caching Layer: Stores frequently accessed data in-memory with a Time-To-Live (TTL). This dramatically reduces latency and load on the PostgreSQL database for repeated requests.
-### 4.4. Worker (Celery)
- * Purpose: To execute jobs asynchronously so the API can respond instantly. It is a separate process that runs independently of the web server.
- * Key Responsibilities:
-   * Job Consumption: Continuously monitors the Redis task queue for new jobs.
-   * Heavy Lifting: Performs the actual long-running tasks (image processing, analysis, captioning, etc.).
-   * Database Updates: Updates the PostgreSQL database with the results of its work (e.g., saving generated captions, updating image metadata).
+### 4.1. Frontend (React.js / Vite)
+*   **Framework & Toolchain:** A [React.js](https://react.dev/) single-page application (SPA) built using the [Vite](https://vitejs.dev/) development toolchain.
+*   **User Interface & State Management:** The UI is constructed with [MUI (Material-UI)](https://mui.com/material-ui/react-components/) components. Global application state is managed using [Redux Toolkit](https://redux-toolkit.js.org/).
+*   **API Interaction:** Communicates with the backend API server by making HTTP requests to a `/api` endpoint. During development, the Vite development server proxies these requests to `http://backend:8000`.
+*   **Deployment:** Defined by a `Dockerfile` that uses a multi-stage build process. It creates an optimized static build of the React application and serves it via an [Nginx](https://www.nginx.com/) web server in the final stage.
+*   **Key Responsibilities:**
+    *   Rendering the interactive user interface, including photo grids, upload forms, and various data visualizations.
+    *   Initiating API calls to the Backend API for data retrieval and task submission.
+    *   Displaying real-time progress for background tasks, potentially through polling status endpoints or WebSockets.
+    *   Managing client-side application state and user interactions.
+    *   Handling features like data upload (e.g., using `react-dropzone` for file management).
+
+### 4.2. Backend API Server (Python / FastAPI)
+*   **Framework & Runtime:** A Python application built with the [FastAPI](https://fastapi.tiangolo.com/) framework, running with [Uvicorn](https://www.uvicorn.org/)'s ASGI server.
+*   **Architecture:** Follows a stateless RESTful API design.
+*   **Key Dependencies:** `fastapi`, `uvicorn`, `sqlalchemy` (for ORM), `psycopg2-binary` (PostgreSQL adapter), `redis` (for cache/Celery integration), `pillow` (for image processing utilities).
+*   **Key Responsibilities:**
+    *   Exposing a comprehensive RESTful API for all Loraforge services.
+    *   Validating incoming user requests and data payloads.
+    *   Interacting with the [PostgreSQL](https://www.postgresql.org/) database via SQLAlchemy for persistent data storage (e.g., managing datasets, images, metadata).
+    *   Delegating long-running, computationally intensive tasks to the Background Worker by pushing job messages onto the [Redis](https://redis.io/) message broker.
+    *   Implementing caching strategies using Redis to reduce database load for frequently accessed data.
+    *   Providing API endpoints for actions such as file uploads (`POST /datasets/upload`), image retrieval (`GET /datasets/{id}/images`), batch processing (`POST /images/batch-process`), and task status checks (`GET /tasks/{task_id}/status`).
+
+### 4.3. Message Broker & Cache (Redis)
+*   **Type:** An in-memory data store.
+*   **Purpose:** Serves a dual role as both the high-speed central hub for asynchronous communication and a volatile caching layer.
+*   **Key Responsibilities:**
+    *   **As a Message Broker for Celery:** Manages a queue (or multiple queues) of jobs dispatched by the Backend API and consumed by the Background Worker. This decouples the API from the worker, allowing the API to remain responsive while heavy tasks are processed asynchronously.
+    *   **As a Caching Layer:** Stores frequently accessed or computationally expensive data results with a configurable Time-To-Live (TTL). This significantly reduces latency and load on the PostgreSQL database by serving cached data directly to the Backend API.
+
+### 4.4. Background Worker (Celery)
+*   **Framework & Environment:** A [Celery](https://docs.celeryq.dev/en/stable/) worker process specifically designed for executing background tasks.
+*   **Resource Utilization:** Configured to run in a separate Docker container built on an `nvidia/cuda` base image, indicating its capability and intention to leverage GPU resources for specific tasks (e.g., image processing, model inference).
+*   **Key Dependencies:** `celery`, `redis` (for connectivity to the message broker), `sqlalchemy` (for database interaction).
+*   **Key Responsibilities:**
+    *   **Job Consumption:** Continuously monitors the Redis task queue for new job messages dispatched by the Backend API.
+    *   **Heavy Lifting & Computation:** Executes all CPU/GPU intensive and long-running operations, such as:
+        *   Image format conversion.
+        *   Video keyframe extraction and deduplication.
+        *   Group and character splitting.
+        *   Image analysis and metadata extraction.
+        *   Automated image filtering and cleaning.
+        *   Intelligent dataset composition and balancing.
+        *   Conditional image upscaling.
+        *   LLM-based image captioning.
+    *   **Database Updates:** Persists the results of its work, such as generated captions, updated image metadata, and task status, back into the PostgreSQL database.
+
+### 4.5. Database (PostgreSQL)
+*   **Type:** A robust, open-source relational database management system.
+*   **ORM:** [SQLAlchemy](https://www.sqlalchemy.org/) is used as the Object Relational Mapper (ORM) for Python applications, providing a convenient way to interact with the database using Python objects.
+*   **Purpose:** Serves as the single source of truth for all persistent, structured metadata related to datasets, images, tasks, and user configurations.
+*   **Key Responsibilities:**
+    *   Storing metadata for datasets (e.g., `id`, `name`, `source_path`, `created_at`).
+    *   Maintaining core image information (e.g., `id`, `dataset_id`, `filename`, `path`, `width`, `height`).
+    *   Storing flexible image analysis results (e.g., `image_id`, `metadata_key`, `metadata_value`).
+    *   Archiving generated captions (e.g., `image_id`, `caption_text`, `model_used`).
+    *   Tracking the lifecycle and status of background tasks (`id`, `status`, `progress`, `result`).
 ### 4.5. Database (PostgreSQL)
  * Purpose: The single source of truth for all persistent, structured data.
  * High-Level Schema:
