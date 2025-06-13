@@ -1,18 +1,16 @@
 # Use an Ubuntu CUDA 12.2 development image as the base
-FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
+FROM python:3.10-slim-bullseye
 
 # Set environment variables for Python
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        python3.10 \
-        python3-pip \
-        build-essential \
-        libmagic-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends \
+#         build-essential \
+#         libmagic-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
 # Create a working directory inside the container
 WORKDIR /app

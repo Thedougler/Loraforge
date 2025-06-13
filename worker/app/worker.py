@@ -6,13 +6,11 @@ from PIL import Image as PILImage # Use an alias to avoid conflict with Image mo
 import magic # for file type detection
 from pathlib import Path
 from sqlalchemy.orm import Session
-from .models import SessionLocal, Dataset, Image
-
-from .main import app as fastapi_app
+from app.models import SessionLocal, Dataset, Image, create_db_tables
 
 celery_app = Celery(
     "loraforge_worker",
-    include=["main"]  # Include the main module where tasks might be defined
+    include=["app.worker"]
 )
 
 celery_app.conf.update(
@@ -20,15 +18,8 @@ celery_app.conf.update(
     result_backend=os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 )
 
-# Optional: Configure Celery to use the FastAPI app context if needed
-# For example, if your tasks need access to FastAPI's dependencies or database sessions
-# with FastAPI context:
-# @celery_app.task
-# def my_task_with_fastapi_context():
-#     with fastapi_app.app_context(): # This is pseudocode as FastAPI doesn't have app_context like Flask
-#         # Your task logic using FastAPI components
-#         pass
-
+# Ensure database tables are created on worker startup
+create_db_tables()
 
 import logging
 
@@ -39,7 +30,7 @@ task_logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     celery_app.start()
 
-@celery_app.task(name="process_dataset_upload")
+@celery_app.task(name='app.worker.process_dataset_upload')
 def process_dataset_upload(file_path: str, original_filename: str = None):
     task_logger.info(f"Starting 'process_dataset_upload' for file: {file_path}")
 
@@ -136,5 +127,7 @@ def process_dataset_upload(file_path: str, original_filename: str = None):
         db.rollback() # Rollback changes if any error occurs
         task_logger.error(f"An unexpected error occurred during dataset processing for {file_path}: {e}", exc_info=True)
         return {"status": "failed", "message": f"An unexpected error occurred: {e}"}
-    finally:
-        db.close() # Always close the session
+
+@celery_app.task
+def add(x, y):
+    return x + y

@@ -5,13 +5,21 @@ import uuid
 import os
 import logging
 
-from .celery import celery_app
+from app.models import create_db_tables
+
+from celery import Celery
+
+celery_app = Celery('backend', broker='redis://redis:6379/0')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    create_db_tables()
 
 UPLOAD_DIR = "/data/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -39,7 +47,7 @@ async def upload_dataset(file: UploadFile = File(...)):
         logger.info(f"File saved to {file_path}")
 
         # Enqueue the Celery task
-        task = celery_app.send_task("process_dataset_upload", args=[file_path])
+        task = celery_app.send_task("app.worker.process_dataset_upload", args=[file_path])
         return {"status": "success", "message": "File uploaded and processing initiated.", "task_id": task.id}
     except Exception as e:
         logger.error(f"Error uploading file: {e}")

@@ -1,15 +1,20 @@
-version: '3.8'
-
 services:
   frontend:
+    container_name: frontend
     build:
       context: ./frontend
+      target: build
     ports:
-      - "8088:80"
+      - "8088:5173"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    command: sh -c "npm run dev -- --host"
 
   backend:
+    container_name: backend
     build:
       context: ./backend
     ports:
@@ -17,18 +22,15 @@ services:
     depends_on:
       - db
       - redis
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      - DATABASE_URL=postgresql://loraforge_user:loraforge_password@db:5432/loraforge_db
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
+      - ./backend:/app
       - loraforge_data:/data
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
 
   db:
+    container_name: db
     image: postgres
     environment:
       POSTGRES_DB: loraforge_db
@@ -38,21 +40,24 @@ services:
       - db_data:/var/lib/postgresql/data
 
   redis:
+    container_name: redis
     image: redis
     volumes:
       - redis_data:/data
 
   worker:
+    container_name: worker
     build:
-      context: ./backend
-    command: celery -A app.celery worker --loglevel=info
+      context: ./worker
+    command: celery -A app.worker worker --loglevel=info
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://loraforge_user:loraforge_password@db:5432/loraforge_db
     depends_on:
-      - db
       - redis
     volumes:
+      - ./worker:/app
       - loraforge_data:/data
     deploy:
       resources:

@@ -38,7 +38,7 @@ function DatasetUpload() {
     try {
       // Assuming the backend is running on the same host but different port or a proxy is configured
       // For development, you might need to adjust the URL if your backend is on a different origin
-      const response = await axios.post('/datasets/upload', formData, {
+      const response = await axios.post('/api/datasets/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
