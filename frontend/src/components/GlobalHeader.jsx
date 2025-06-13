@@ -7,11 +7,11 @@ function GlobalHeader() {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div">
           LoRAForge
         </Typography>
         <DatasetSelector />
-        <Box sx={{ flexGrow: 1 }} /> {/* This creates space */}
+        <Box sx={{ flexGrow: 1 }} />
         <UploadButton />
       </Toolbar>
     </AppBar>

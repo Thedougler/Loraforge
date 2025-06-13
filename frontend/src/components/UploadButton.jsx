@@ -14,7 +14,7 @@ function UploadButton() {
   return (
     <Button
       variant="contained"
-      color="primary"
+      color="inherit"
       startIcon={<CloudUploadIcon />}
       onClick={handleClick}
     >
