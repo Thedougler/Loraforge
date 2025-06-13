@@ -1,65 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import React, { useEffect } from 'react';
+import { FormControl, InputLabel, Select, MenuItem, Box, CircularProgress, Typography } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { setActiveDataset } from '../features/dataset/datasetSlice';
+import { fetchDatasets, selectDataset, fetchPhotosForDataset } from '../features/dataset/datasetSlice';
 
 function DatasetSelector() {
   const dispatch = useDispatch();
-  const activeDatasetId = useSelector((state) => state.dataset.activeDatasetId);
-  const [datasets, setDatasets] = useState([]);
+  const { datasets, activeDatasetId, status, error } = useSelector((state) => state.dataset);
+  const selectedDataset = datasets.find(d => d.id === activeDatasetId);
+
 
   useEffect(() => {
-    fetch('/api/v1/datasets/')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setDatasets(data);
-        if (data.length > 0) {
-          // If no dataset is currently active in Redux, set the first one as active
-          // This handles initial load or after all datasets are cleared/reloaded.
-          if (!activeDatasetId) {
-            dispatch(setActiveDataset(data[0].id));
-          }
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching datasets:', error);
-      });
-  }, []); // Empty dependency array as this effect should run once on mount
-
-  // Update local state if Redux activeDatasetId changes
-  useEffect(() => {
-    // Ensure that if Redux state changes (e.g., after an upload),
-    // the selector reflects the active dataset.
-    // If the activeDatasetId is null, reset the selector.
-  }, [activeDatasetId]);
+    if (status === 'idle') {
+      dispatch(fetchDatasets());
+    }
+  }, [status, dispatch]);
 
   const handleChange = (event) => {
-    const newSelectedId = event.target.value;
-    dispatch(setActiveDataset(newSelectedId));
+    const newDatasetId = event.target.value;
+    if (newDatasetId) {
+      dispatch(selectDataset(newDatasetId));
+      dispatch(fetchPhotosForDataset(newDatasetId));
+    }
   };
 
+  if (status === 'loading') {
+    return <CircularProgress />;
+  }
+
+  if (status === 'failed') {
+    return <Typography color="error">Error fetching datasets: {JSON.stringify(error)}</Typography>;
+  }
+
   return (
-    <FormControl sx={{ m: 1, minWidth: 200 }}>
-      <InputLabel id="dataset-selector-label">Select Dataset</InputLabel>
-      <Select
-        labelId="dataset-selector-label"
-        id="dataset-selector"
-        value={activeDatasetId || ''} // Use activeDatasetId from Redux
-        onChange={handleChange}
-        label="Select Dataset"
-      >
-        {datasets.map((dataset) => (
-          <MenuItem key={dataset.id} value={dataset.id}>
-            {dataset.name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    <Box sx={{ minWidth: 180 }}>
+      <FormControl fullWidth size="small" variant="outlined">
+        <InputLabel id="dataset-select-label">Dataset</InputLabel>
+        <Select
+          labelId="dataset-select-label"
+          id="dataset-select"
+          value={selectedDataset?.id || ''}
+          label="Dataset"
+          onChange={handleChange}
+          disabled={status === 'loading'}
+        >
+          {datasets.map((dataset) => (
+            <MenuItem key={dataset.id} value={dataset.id}>
+              {dataset.name}
+            </MenuItem>
+          ))}
+          {datasets.length === 0 && status !== 'loading' && (
+            <MenuItem value="" disabled>No datasets available</MenuItem>
+          )}
+        </Select>
+      </FormControl>
+    </Box>
   );
 }
 

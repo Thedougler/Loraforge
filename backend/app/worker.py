@@ -169,11 +169,11 @@ def process_dataset_upload(task_id: str, temp_file_path: str, original_filename:
                             mime_type=mime_type # Store the detected MIME type
                         )
                         db.add(new_file_record)
+                        db.commit() # Commit each file record
                         processed_file_count += 1
                         # task_logger.info(f"Created file record for file: {f} (Path: {relative_path}, MIME: {mime_type})")
                     else:
                         task_logger.info(f"Skipping unsupported file: {f} (MIME: {mime_type})")
-            db.commit() # Commit all image records in one go
             
             task.progress = 90
             task.result = f"Processed {processed_file_count} files. Cleaning up..."

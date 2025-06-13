@@ -1,86 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
-import axios from 'axios';
+import React from 'react';
 import { useSelector } from 'react-redux';
-import { styled } from '@mui/system';
+import { motion } from 'framer-motion';
+import { Grid, Box, Typography } from '@mui/material';
+import PhotoThumbnail from './PhotoThumbnail';
 
-const ImageContainer = styled(Box)(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', // Adjust min image size here
-  gap: theme.spacing(1),
-  padding: theme.spacing(1), // Add some padding around the grid
-  width: '100%',
-  '& img': {
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-    borderRadius: theme.shape.borderRadius,
-    objectFit: 'cover', // Ensures image covers the area without distortion
-  },
-}));
+const PhotoGrid = () => {
+  const photos = useSelector((state) => state.dataset.photos);
+  const status = useSelector((state) => state.dataset.status);
+  const error = useSelector((state) => state.dataset.error);
 
-function PhotoGrid() {
-  const activeDatasetId = useSelector((state) => state.dataset.activeDatasetId);
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
 
-  useEffect(() => {
-    if (activeDatasetId) {
-      setLoading(true);
-      setError(null);
-      const fetchImages = async () => {
-        try {
-          // Assuming the backend endpoint returns a list of image objects with 'id' and 'name'
-          // and that /api/v1/images/{id}/data serves the actual image data.
-          const response = await axios.get(`/api/v1/datasets/${activeDatasetId}/images/`);
-          setImages(response.data);
-        } catch (err) {
-          console.error("Error fetching images:", err);
-          setError("Failed to load images for this dataset.");
-          setImages([]);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchImages();
-    } else {
-      setImages([]);
-      setLoading(false);
-      setError(null);
-    }
-  }, [activeDatasetId]);
-
-  if (loading) {
-    return <Typography>Loading images...</Typography>;
+  if (status === 'loading') {
+    return <Typography>Loading photos...</Typography>;
   }
 
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    const errorMessage = error.detail || (typeof error === 'object' ? JSON.stringify(error) : error);
+    return <Typography color="error">Error: {errorMessage}</Typography>;
   }
 
-  if (!activeDatasetId) {
-    return <Typography>Please select a dataset or upload a new one to view images.</Typography>;
-  }
-
-  if (images.length === 0) {
-    return <Typography>No images found for the active dataset.</Typography>;
+  if (!photos || photos.length === 0) {
+    return <Typography>No photos to display. Select a dataset or upload new images.</Typography>;
   }
 
   return (
-    <ImageContainer>
-      {images.map((image) => (
-        <React.Fragment key={image.id}>
-          <img
-            src={`/api/v1/images/${image.id}/file`} // Use the direct data endpoint for full size image
-            alt={image.filename}
-            loading="lazy"
-          />
-        </React.Fragment>
-      ))}
-    </ImageContainer>
+    <Box sx={{ flexGrow: 1, p: 2 }}>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <Grid container spacing={2}>
+          {photos.map((photo) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={photo.id}>
+              <PhotoThumbnail photo={photo} />
+            </Grid>
+          ))}
+        </Grid>
+      </motion.div>
+    </Box>
   );
-}
+};
 
 export default PhotoGrid;
