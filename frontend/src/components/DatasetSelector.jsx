@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { FormControl, InputLabel, Select, MenuItem, Box, CircularProgress, Typography } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchDatasets, selectDataset, fetchPhotosForDataset } from '../features/dataset/datasetSlice';
+import { fetchDatasets, selectDataset } from '../features/dataset/datasetSlice';
 
 function DatasetSelector() {
   const dispatch = useDispatch();
@@ -19,7 +19,6 @@ function DatasetSelector() {
     const newDatasetId = event.target.value;
     if (newDatasetId) {
       dispatch(selectDataset(newDatasetId));
-      dispatch(fetchPhotosForDataset(newDatasetId));
     }
   };
 

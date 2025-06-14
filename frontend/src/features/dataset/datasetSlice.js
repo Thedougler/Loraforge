@@ -21,36 +21,92 @@ export const fetchPhotosForDataset = createAsyncThunk('dataset/fetchPhotosForDat
   }
 });
 
-export const uploadDataset = createAsyncThunk('dataset/uploadDataset', async (formData, { dispatch, rejectWithValue }) => {
+export const uploadDataset = createAsyncThunk('dataset/uploadDataset', async (formData, { dispatch, getState, rejectWithValue }) => {
+    console.log('Current state:', getState());
+  const pollTaskStatus = async (taskId) => {
+    const interval = 2000; // Poll every 2 seconds
+    const maxAttempts = 30; // Timeout after 1 minute
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      try {
+        const response = await axios.get(`/api/v1/tasks/${taskId}/status`);
+        if (response.data.status === 'SUCCESS') {
+          return response.data;
+        } else if (response.data.status === 'FAILURE') {
+          throw new Error('Upload task failed');
+        }
+      } catch (error) {
+        throw new Error('Failed to poll task status');
+      }
+      attempts++;
+      await new Promise(resolve => setTimeout(resolve, interval));
+    }
+    throw new Error('Polling timed out');
+  };
+
   try {
-    const response = await axios.post('/api/v1/datasets/', formData, {
+    const initialResponse = await axios.post('/api/v1/datasets/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    // After upload, refresh the datasets list
-    dispatch(fetchDatasets());
-    return response.data;
+
+    const taskId = initialResponse.data.id;
+    if (!taskId) {
+      throw new Error('Task ID not found in response');
+    }
+
+    const taskResult = await pollTaskStatus(taskId);
+
+    const { datasets: originalDatasets } = getState().dataset;
+    const updatedDatasets = await dispatch(fetchDatasets()).unwrap();
+
+    let newDataset;
+    if (taskResult && taskResult.dataset_id) {
+      newDataset = updatedDatasets.find(d => d.id === taskResult.dataset_id);
+    } else {
+      // Fallback: find the dataset that is not in the original list
+      const originalDatasetIds = new Set(originalDatasets.map(d => d.id));
+      newDataset = updatedDatasets.find(d => !originalDatasetIds.has(d.id));
+    }
+
+    if (newDataset) {
+      dispatch(selectDataset(newDataset.id));
+      return newDataset.id;
+    } else {
+        // if the new dataset is not found, select the last one as a fallback
+        const newDatasetId = updatedDatasets[updatedDatasets.length - 1].id;
+        dispatch(selectDataset(newDatasetId));
+        return newDatasetId;
+    }
   } catch (error) {
-    return rejectWithValue(error.response.data);
+    console.error('Error in uploadDataset thunk:', error);
+    return rejectWithValue(error.response ? error.response.data : error.message);
   }
 });
-
 
 const initialState = {
   datasets: [],
   photos: [],
   activeDatasetId: null,
   isUploadModalOpen: false,
+  isSidebarOpen: false, // Add this line
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
+
+export const selectDataset = createAsyncThunk('dataset/selectDataset', async (datasetId, { dispatch }) => {
+  dispatch(datasetSlice.actions._selectDataset(datasetId));
+  await dispatch(fetchPhotosForDataset(datasetId));
+  return datasetId;
+});
 
 export const datasetSlice = createSlice({
   name: 'dataset',
   initialState,
   reducers: {
-    selectDataset: (state, action) => {
+    _selectDataset: (state, action) => {
       state.activeDatasetId = action.payload;
       // When a new dataset is selected, clear the old photos
       state.photos = [];
@@ -60,6 +116,9 @@ export const datasetSlice = createSlice({
     },
     closeUploadModal: (state) => {
       state.isUploadModalOpen = false;
+    },
+    toggleSidebar: (state) => {
+      state.isSidebarOpen = !state.isSidebarOpen;
     },
   },
   extraReducers: (builder) => {
@@ -113,6 +172,6 @@ export const datasetSlice = createSlice({
   },
 });
 
-export const { selectDataset, openUploadModal, closeUploadModal } = datasetSlice.actions;
+export const { openUploadModal, closeUploadModal, toggleSidebar } = datasetSlice.actions;
 
 export default datasetSlice.reducer;

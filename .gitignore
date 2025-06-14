@@ -203,3 +203,5 @@ frontend/.env.local
 frontend/.DS_Store
 frontend/node_modules/
 backend/tests/test_images.zip
+example_data/
+example_data/example_image.jpg

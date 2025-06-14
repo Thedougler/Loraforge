@@ -37,7 +37,7 @@ describe('UploadModal', () => {
       },
     });
 
-    expect(screen.getByText('Upload Dataset')).toBeInTheDocument();
+    expect(screen.getByText('Upload Your Dataset')).toBeInTheDocument();
   });
 
   it('does not render when isUploadModalOpen is false', () => {
@@ -61,7 +61,7 @@ describe('UploadModal', () => {
       },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /close upload modal/i }));
+    fireEvent.click(screen.getByLabelText('close upload modal'));
 
     expect(store.getState().dataset.isUploadModalOpen).toBe(false);
   });

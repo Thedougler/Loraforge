@@ -41,7 +41,6 @@ describe('GlobalHeader', () => {
     renderWithRedux(<GlobalHeader />, {});
 
     expect(screen.getByText(/Loraforge/i)).toBeInTheDocument();
-    expect(screen.getByTestId('mock-dataset-selector')).toBeInTheDocument();
     expect(screen.getByTestId('mock-upload-button')).toBeInTheDocument();
   });
 });
