@@ -1,4 +1,4 @@
-import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, act, fireEvent, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import DatasetSelector from '../components/DatasetSelector';
@@ -74,5 +74,58 @@ describe('DatasetSelector', () => {
 
     // Also, verify that the Redux state was updated correctly
     expect(store.getState().dataset.activeDatasetId).toBe('2');
+  });
+
+  it('allows renaming a dataset by switching to an input field and a confirm button', async () => {
+    renderWithRedux(<DatasetSelector />);
+
+    // Wait for the datasets to be loaded and "Dataset A" to be visible
+    await screen.findByText('Dataset A');
+    
+    // There isn't an explicit "rename" button in the current HTML.
+    // Assuming there will be some interactive element next to the dataset name
+    // that triggers the rename functionality. For now, let's look for a generic button
+    // or simulate an action on the dataset name itself if that's how the UI works.
+    // If there is an actual icon/button, we will need to adjust this selector.
+
+    // Let's first open the dropdown to see the list of datasets
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    
+    // Find "Dataset A" in the list of options.
+    const datasetAOption = await screen.findByRole('option', { name: "Dataset A" });
+
+    // Find the rename button specifically for "Dataset A" within its MenuItem
+    const renameButton = within(datasetAOption).getByRole('button', { name: /rename dataset Dataset A/i });
+    fireEvent.click(renameButton);
+
+    // Expect the dataset name to become an input field with the original name
+    const datasetInput = await screen.findByRole('textbox', { name: /rename dataset Dataset A/i });
+    expect(datasetInput).toBeInTheDocument();
+    expect(datasetInput.tagName).toBe('INPUT');
+    expect(datasetInput).toHaveValue('Dataset A');
+
+    // Expect the rename button to change into a confirm button/icon
+    const confirmButton = screen.getByRole('button', { name: /confirm rename/i });
+    expect(confirmButton).toBeInTheDocument();
+  });
+});
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
+import DatasetSelector from '../components/DatasetSelector';
+
+describe('DatasetSelector', () => {
+  test('allows renaming a dataset', () => {
+    const { getByText, getByDisplayValue } = render(<DatasetSelector />);
+    
+    // Assuming there's a dataset named "Dataset 1"
+    const renameButton = getByText('rename');
+    fireEvent.click(renameButton);
+    
+    // Check if the input field is displayed with the current dataset name
+    const inputField = getByDisplayValue('Dataset 1');
+    expect(inputField).toBeInTheDocument();
+    
+    // Check if the rename button has changed to a confirm icon
+    expect(renameButton).toHaveTextContent('confirm'); // Adjust based on actual confirm icon text
   });
 });
