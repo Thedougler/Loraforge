@@ -42,17 +42,19 @@ To ensure clarity, consistency, and effective collaboration (especially with AI 
  * **Adherence to Standards:** All code must be formatted and linted according to the project's standards (black for Python, prettier for the frontend) before being committed. Commit messages should follow the Conventional Commits specification.
 ## Getting Started
  * Clone the repository:
-   git clone https://github.com/Thedougler/Loraforge.git
+    git clone https://github.com/Thedougler/Loraforge.git
 cd Loraforge
 
  * Launch with Docker Compose:
-   docker compose up -d
+    docker compose up -d --build
 
  * Access the WebUI:
-   Open your browser and navigate to http://localhost:8000.
+    Open your browser and navigate to http://localhost:8000.
+## Documentation
+For more detailed information, please check the `docs/` folder, which includes important files such as [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md).
 ## Project Roadmap
 The following features represent the planned functionality for a complete version of LoRA-Forge.
- * [ ] Core: Dataset creation from archives.
+ * [X] Core: Dataset creation from archives.
  * [ ] Core: Infinite scroll, lazy-loading photo grid viewer.
  * [ ] Core: Dynamic dataset statistics view.
  * [ ] Batch Operations: Image format conversion.
@@ -68,4 +70,16 @@ The following features represent the planned functionality for a complete versio
 ## Contributing
 Contributions are welcome! Please review the Development Philosophy and pick an open issue to work on.
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+## Running Tests
+Tests can be run inside the Docker containers to ensure a consistent environment.
+
+### Frontend
+Run the following command to execute frontend tests:
+```
+docker-compose run --rm frontend npm test
+```
+
+### Backend
+Run the following command to execute backend tests:
+```
+docker-compose run --rm backend pytest -v
