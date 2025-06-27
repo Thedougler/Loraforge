@@ -105,14 +105,6 @@ graph TD
     *   Storing flexible image analysis results (e.g., `image_id`, `metadata_key`, `metadata_value`).
     *   Archiving generated captions (e.g., `image_id`, `caption_text`, `model_used`).
     *   Tracking the lifecycle and status of background tasks (`id`, `status`, `progress`, `result`).
-### 4.5. Database (PostgreSQL)
- * Purpose: The single source of truth for all persistent, structured data.
- * High-Level Schema:
-   * datasets: Stores information about each dataset (id, name, source_path, created_at).
-   * images: Core table for every image file (id, dataset_id, filename, path, width, height).
-   * image_metadata: A flexible table for storing analysis results (image_id, metadata_key, metadata_value).
-   * captions: Stores generated captions (image_id, caption_text, model_used).
-   * background_tasks: Tracks the status of jobs (id, status, progress, result).
 ## 5. Data Flow Example: Batch Captioning
  * User Action: User selects 100 images in the frontend and clicks "Batch Caption".
  * Frontend: Sends a POST request to /images/batch-process with a payload containing the operation type and image IDs.
